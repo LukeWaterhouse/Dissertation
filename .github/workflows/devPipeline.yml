@@ -1,0 +1,66 @@
+name: Development-Pipeline
+
+
+#Development pipeline, runs on everything except main or master
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+      - '!master'
+
+jobs:
+
+ # runs tests using the npm script defined in my package.json
+  testing:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm install
+        working-directory: ./client
+
+      - run: npm test
+        working-directory: ./client
+
+
+  #uses a super linter to check for good practice in codebase for newly changed files
+  linting:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+  
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Lint Code Base
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_REGEX_EXCLUDE: .*node_modules/.*
+
+
+  #uses the dockerfiles in the project and dockercompose to make sure docker containers can all build correctly (as long as tests pass)
+  build:
+    needs: testing
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker-compose build
