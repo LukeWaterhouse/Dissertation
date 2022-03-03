@@ -153,5 +153,5 @@ app.post('/logout', (req, res) => {
 })
 
 app.listen(5000, function () {
-  console.log('Demonstrating hot reload')
+  console.log('Server 1 running')
 })

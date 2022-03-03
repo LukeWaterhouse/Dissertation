@@ -37,6 +37,24 @@ services:
       - CLIENT=http://localhost:3000
     command: /usr/app/node_modules/.bin/nodemon -L server.js
 
+  server2:
+    build:
+      context: ./api2
+      dockerfile: Dockerfile
+    ports:
+      - 49152:49152
+    networks:
+      - mern-network
+    volumes:
+      - ./api2:/usr/app
+    depends_on:
+      - server
+    environment:
+      - MONGO_URL=mongodb://db:27017
+      - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon -L server.js
+
+
   mongo:
     image: mongo
     ports:
