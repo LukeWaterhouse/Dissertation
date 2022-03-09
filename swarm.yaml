@@ -1,0 +1,114 @@
+version: '3'
+services:
+  client:
+    image: diss_client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client/src:/usr/app/src
+      - ./client/public:/usr/app/public
+    depends_on:
+      - server
+    environment:
+      - REACT_APP_SERVER=http://localhost:5000
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
+
+
+  server:
+    image: diss_server
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    volumes:
+      - ./api:/usr/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://db:27017
+      - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon -L server.js
+    deploy:
+      replicas: 3
+
+  server2:
+    image: diss_server2
+    build:
+      context: ./api2
+      dockerfile: Dockerfile
+    ports:
+      - 49152:49152
+    volumes:
+      - ./api2:/usr/app
+    depends_on:
+      - server
+    environment:
+      - MONGO_URL=mongodb://db:27017
+      - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon -L server.js
+    deploy:
+      replicas: 3
+
+  server3:
+    image: diss_server3
+    build:
+      context: ./api3
+      dockerfile: Dockerfile
+    ports:
+      - 49153:49153
+    volumes:
+      - ./api3:/usr/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://db:27017
+      - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon -L server.js
+    deploy:
+      replicas: 3
+
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+
+
+  visualiser:
+    image: dockersamples/visualizer
+    ports: 
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  locust:
+    image: swernst/locusts
+    ports:  
+     - 49156:49156
+    volumes:
+      - ./scripts:/scripts 
+
+  master:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://master:49156
+  
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master
+      
+volumes:
+  mongo-data:
+    driver: local

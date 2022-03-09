@@ -1,13 +1,13 @@
 import React from 'react'
 
-const ColoredLine = ({ color }) => (
+const ColoredLine = ({ color, margin }) => (
   <hr
     style={{
       color: color,
       backgroundColor: color,
       height: '2px',
-      marginLeft: '1.5%',
-      marginRight: '1.5%',
+      marginLeft: margin,
+      marginRight: margin,
       marginTop: '25px'
     }}
   />

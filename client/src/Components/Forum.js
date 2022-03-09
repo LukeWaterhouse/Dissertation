@@ -61,7 +61,7 @@ function Forum() {
 
     //clears the posts by sending request, they will disspear automatically due to interval update
     axios
-      .delete('http://localhost:5000/Posts', {}, { withCredentials: true })
+      .delete('http://localhost:49152/Posts', {}, { withCredentials: true })
       .then((response) => {
         console.log(response)
       })
@@ -86,7 +86,7 @@ function Forum() {
       //sends data to backend api then database
       const data = { userName, date, content }
       axios
-        .post('http://localhost:5000/Posts', data, { withCredentials: true })
+        .post('http://localhost:49152/Posts', data, { withCredentials: true })
         .then((response) => {
           console.log(response.data)
         })
@@ -98,7 +98,7 @@ function Forum() {
     //function for getting posts from db using request
     //these are formatted by a function and then the state is set for mapping
     axios
-      .get('http://localhost:5000/Posts', { withCredentials: true })
+      .get('http://localhost:49152/Posts', { withCredentials: true })
       .then((response) => {
         console.log(typeof response)
         setPosts(formatPosts(response))
@@ -160,7 +160,7 @@ function Forum() {
         )}
         {!user.userName && <div>Not Logged in</div>}
       </div>
-      <ColoredLine color="white" />
+      <ColoredLine color="white" margin={'1.5%'} />
 
       <button
         style={{ marginTop: '10px', marginLeft: '1.5%' }}

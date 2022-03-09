@@ -38,8 +38,12 @@ function Register() {
             setPassword('')
             setuserNameExists(false)
             history.push('/homepage')
+
+            axios.post('http://localhost:49153/NewProfile', data, {withCredentials: true})
           }
         })
+
+      
     }
   }
 

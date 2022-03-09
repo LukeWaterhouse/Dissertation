@@ -54,6 +54,23 @@ services:
       - CLIENT=http://localhost:3000
     command: /usr/app/node_modules/.bin/nodemon -L server.js
 
+  server3:
+    build:
+      context: ./api3
+      dockerfile: Dockerfile
+    ports:
+      - 49153:49153
+    networks:
+      - mern-network
+    volumes:
+      - ./api3:/usr/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://db:27017
+      - CLIENT=http://localhost:3000
+    command: /usr/app/node_modules/.bin/nodemon -L server.js
+
 
   mongo:
     image: mongo
@@ -64,6 +81,50 @@ services:
     volumes:
       - ./data:/data/db
     container_name: mongo
+
+  visualiser:
+    image: dockersamples/visualizer
+    ports: 
+      - 49154:49154
+
+  master:
+    image: locustio/locust
+    ports:
+     - 8089:8089
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://master:8089
+  
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+    - cadvisor
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+    - 8080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - server1
 
 networks:
   mern-network:
