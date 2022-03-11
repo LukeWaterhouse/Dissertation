@@ -1,5 +1,12 @@
 version: '3'
 services:
+  # web:
+  #   image: nclcloudcomputing/javabenchmarkapp
+  #   ports: 
+  #   - "8080:8080"  
+  #   deploy:
+  #     replicas: 1
+
   client:
     image: diss_client
     build:
@@ -84,31 +91,42 @@ services:
   visualiser:
     image: dockersamples/visualizer
     ports: 
-      - 8080:8080
+      - 8081:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  locust:
-    image: swernst/locusts
-    ports:  
-     - 49156:49156
-    volumes:
-      - ./scripts:/scripts 
+  # locust:
+  #   image: swernst/locusts
+  #   ports:  
+  #    - 49156:49156
+  #   volumes:
+  #     - ./scripts:/scripts 
 
-  master:
+  locust:
     image: locustio/locust
     ports:
-     - "8089:8089"
+     - "8090:8089"
     volumes:
-      - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --master -H http://master:49156
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile.py 
   
-  worker:
-    image: locustio/locust
-    volumes:
-      - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --worker --master-host master
+  # worker:
+  #   image: locustio/locust
+  #   volumes:
+  #     - ./:/mnt/locust
+  #   command: -f /mnt/locust/locustfile.py --worker --master-host master
       
-volumes:
-  mongo-data:
-    driver: local
+# volumes:
+#   mongo-data:
+#     driver: local
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8089:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      replicas: 1
