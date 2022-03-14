@@ -4,6 +4,8 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
+import ColoredLine from './Line'
+
 
 function Post(props) {
   return (
@@ -39,6 +41,7 @@ function Post(props) {
             >
               {props.content}
             </Typography>
+            <ColoredLine color="red"/>
           </CardContent>
         </Card>
       </Box>

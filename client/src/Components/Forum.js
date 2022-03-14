@@ -14,6 +14,16 @@ import { TextField } from '@mui/material'
 import { formatPosts } from '../Utilities/utilFunctions'
 
 function Forum() {
+  //Error handling
+
+
+  var location= "error";
+  const [isError, setIsError] = useState(false)
+  const [errorType, setErrorType] = useState('Unspecified error')
+
+  //location
+  //const [location, setLocation] = useState('error')
+
   const user = useContext(UserContext)
   const [postContent, setPostContent] = useState('')
   const [showPostBlank, setShowPostBlank] = useState(false)
@@ -24,12 +34,40 @@ function Forum() {
     console.log(e.target.value)
     setPostContent(e.target.value)
   }
+  async function getProfileInf() {
+    console.log('hi')
+    console.log(user.userName)
+
+    await axios
+      .get(
+        'http://localhost:49153/ProfileInfo',
+        { params: { username: user.userName } },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        console.log('then')
+        console.log(response)
+        location = response.data.location
+
+        // let profileData = response.data
+
+        // setAbout(profileData.About)
+        // setLocation(profileData.location)
+        // setTagOne(profileData.Tag1)
+        // setTagTwo(profileData.Tag2)
+        // setTagThree(profileData.Tag3)
+        // setTagFour(profileData.Tag4)
+      })
+      .catch((error) => {
+        console.log(error.message)
+      })
+  }
 
   useEffect(() => {
     //gets new posts on a short time interval to ensure they are up to date
     const interval = setInterval(() => {
       getPosts()
-    }, 200)
+    }, 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -67,42 +105,60 @@ function Forum() {
       })
   }
 
-  function makePost(e) {
+  async function makePost(e) {
     e.preventDefault()
+    await getProfileInf().then((asd) => {
+      console.log('lol')
+      console.log(asd)
 
-    //shows error on blank post
-    if (postContent === '') {
-      setShowPostBlank(true)
-    } else {
-      setShowPostBlank(false)
-      setPostContent('')
+      //shows error on blank post
+      if (postContent === '') {
+        setShowPostBlank(true)
+      } else {
+        setShowPostBlank(false)
+        setPostContent('')
 
-      //gets the current date and sets name and content variables
-      var userName = user.userName
-      const date = new Date().toLocaleString() + ''
-      var content = postContent
+        //gets the current date and sets name and content variables
+        var userName = user.userName
+        const date = new Date().toLocaleString() + ''
+        var content = postContent
 
+        console.log('this: ', location)
 
-      //sends data to backend api then database
-      const data = { userName, date, content }
-      axios
-        .post('http://localhost:49152/Posts', data, { withCredentials: true })
-        .then((response) => {
-          console.log(response.data)
-        })
-    }
+        //sends data to backend api then database
+        const data = { userName, date, content, location }
+        axios
+          .post('http://localhost:49152/Posts', data, { withCredentials: true })
+          .then((response) => {
+            console.log(response.data)
+          })
+      }
+    })
+    console.log(location)
   }
 
-  function getPosts() {
+  async function getPosts() {
+    var postResponse
 
     //function for getting posts from db using request
     //these are formatted by a function and then the state is set for mapping
-    axios
+    await axios
       .get('http://localhost:49152/Posts', { withCredentials: true })
       .then((response) => {
-        console.log(typeof response)
-        setPosts(formatPosts(response))
+        console.log('first one')
+        postResponse = response
       })
+      .catch((error) => {
+        setErrorType(error.message)
+        setIsError(true)
+        console.log('Error fetching posts!')
+        console.log(error)
+      })
+
+    // await getProfileInf()
+
+    setPosts(formatPosts(postResponse))
+    setIsError(false)
   }
 
   function Post(props) {
@@ -121,6 +177,10 @@ function Forum() {
 
               <Typography variant="body2" color="white">
                 {props.content}
+              </Typography>
+              <ColoredLine color="white" />
+              <Typography variant="body2" color="#97A9B4" style={{ marginTop: '10px' }}>
+                <i>{props.location}</i>
               </Typography>
             </CardContent>
           </Card>
@@ -161,7 +221,6 @@ function Forum() {
         {!user.userName && <div>Not Logged in</div>}
       </div>
       <ColoredLine color="white" margin={'1.5%'} />
-
       <button
         style={{ marginTop: '10px', marginLeft: '1.5%' }}
         className="btn-1"
@@ -169,7 +228,6 @@ function Forum() {
       >
         CLEAR POSTS
       </button>
-
       <h1
         style={{
           color: 'white',
@@ -182,51 +240,108 @@ function Forum() {
       >
         <u>Forum</u>
       </h1>
+      {!isError ? (
+        <div>
+          <div>
+            {posts.map((APost) => (
+              <div style={{ marginBottom: '10px' }}>
+                <Post
+                  content={APost.content}
+                  date={APost.date}
+                  userName={APost.userName}
+                  location={APost.location}
+                />
+              </div>
+            ))}
+          </div>
 
-      <div>
-        {posts.map((APost) => (
-          <div style={{ marginBottom: '10px' }}>
-            <Post
-              content={APost.content}
-              date={APost.date}
-              userName={APost.userName}
+          {showPostBlank && (
+            <div
+              style={{
+                marginLeft: '15%',
+                color: 'red',
+                paddingTop: '30px',
+                paddingBottom: '10px'
+              }}
+            >
+              Please enter some text before posting!
+            </div>
+          )}
+
+          <div style={{ marginLeft: '15%', marginRight: '15%' }}>
+            <TextField
+              style={{ background: 'white', color: 'black', width: '100%' }}
+              value={postContent}
+              onChange={handlePostChange}
+              placeholder="Enter post"
+              multiline
+              rows={4}
+              rowsMax={3}
             />
           </div>
-        ))}
-      </div>
 
-      {showPostBlank && (
+          <button
+            style={{
+              marginLeft: '15%',
+              marginTop: '10px',
+              marginBottom: '40px'
+            }}
+            className="btn-1"
+            onClick={(e) => makePost(e)}
+          >
+            Post
+          </button>
+        </div>
+      ) : (
         <div
           style={{
+            marginRight: '15%',
             marginLeft: '15%',
-            color: 'red',
-            paddingTop: '30px',
-            paddingBottom: '10px'
+            marginTop: '20px',
+            minWidth: '70%'
           }}
         >
-          Please enter some text before posting!
+          <div>
+            <Box sx={{ minWidth: 275 }} display="inline">
+              <Card variant="outlined">
+                <CardContent
+                  style={{ backgroundColor: '#2C2F33', minHeight: '300px' }}
+                >
+                  <Typography
+                    sx={{ fontSize: 24 }}
+                    color="red"
+                    gutterBottom
+                    style={{
+                      marginTop: '15px',
+                      display: 'flex',
+                      justifycontent: 'center'
+                    }}
+                  >
+                    <u>Error</u>
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: 18 }}
+                    color="white"
+                    gutterBottom
+                    style={{ marginTop: '25px' }}
+                  >
+                    Oops... There was an problem retrieving the Posts
+                  </Typography>
+                  <ColoredLine color="white" />
+                  <Typography
+                    sx={{ fontSize: 18 }}
+                    color="white"
+                    gutterBottom
+                    style={{ marginTop: '15px' }}
+                  >
+                    Error Type: <b>{errorType}</b>
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          </div>
         </div>
       )}
-
-      <div style={{ marginLeft: '15%', marginRight: '15%' }}>
-        <TextField
-          style={{ background: 'white', color: 'black', width: '100%' }}
-          value={postContent}
-          onChange={handlePostChange}
-          placeholder="Enter post"
-          multiline
-          rows={4}
-          rowsMax={3}
-        />
-      </div>
-
-      <button
-        style={{ marginLeft: '15%', marginTop: '10px', marginBottom: '40px' }}
-        className="btn-1"
-        onClick={(e) => makePost(e)}
-      >
-        Post
-      </button>
     </div>
   )
 }

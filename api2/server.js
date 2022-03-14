@@ -28,9 +28,9 @@ app.use(
 //Adds new post to database
 app.post('/Posts', (req, res) => {
   console.log('making post reload?')
-  const { userName, date, content } = req.body
+  const { userName, date, content, location } = req.body
 
-  const post = new Post({ userName: userName, date: date, content: content })
+  const post = new Post({ userName: userName, date: date, content: content, location: location })
   post.save().then((postInfo) => {
     console.log(postInfo)
     res.send('made a post reload?')

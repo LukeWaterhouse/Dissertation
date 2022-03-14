@@ -2,7 +2,8 @@ import mongoose from 'mongoose'
 var schema = mongoose.Schema({
   userName: { type: String },
   date: { type: String },
-  content: { type: String }
+  content: { type: String },
+  location: {type: String}
 })
 
 var Post = mongoose.model('Post', schema)
