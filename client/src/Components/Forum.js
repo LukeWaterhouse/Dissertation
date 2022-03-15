@@ -16,8 +16,7 @@ import { formatPosts } from '../Utilities/utilFunctions'
 function Forum() {
   //Error handling
 
-
-  var location= "error";
+  var location = 'error'
   const [isError, setIsError] = useState(false)
   const [errorType, setErrorType] = useState('Unspecified error')
 
@@ -107,33 +106,30 @@ function Forum() {
 
   async function makePost(e) {
     e.preventDefault()
-    await getProfileInf().then((asd) => {
-      console.log('lol')
-      console.log(asd)
 
-      //shows error on blank post
-      if (postContent === '') {
-        setShowPostBlank(true)
-      } else {
-        setShowPostBlank(false)
-        setPostContent('')
+    //shows error on blank post
+    if (postContent === '') {
+      setShowPostBlank(true)
+    } else {
+      setShowPostBlank(false)
+      setPostContent('')
 
-        //gets the current date and sets name and content variables
-        var userName = user.userName
-        const date = new Date().toLocaleString() + ''
-        var content = postContent
+      //gets the current date and sets name and content variables
+      var userName = user.userName
+      const date = new Date().toLocaleString() + ''
+      var content = postContent
 
-        console.log('this: ', location)
+      console.log('this: ', location)
 
-        //sends data to backend api then database
-        const data = { userName, date, content, location }
-        axios
-          .post('http://localhost:49152/Posts', data, { withCredentials: true })
-          .then((response) => {
-            console.log(response.data)
-          })
-      }
-    })
+      //sends data to backend api then database
+      const data = { userName, date, content}
+      axios
+        .post('http://localhost:49152/Posts', data, { withCredentials: true })
+        .then((response) => {
+          console.log(response.data)
+        })
+    }
+
     console.log(location)
   }
 
@@ -179,7 +175,11 @@ function Forum() {
                 {props.content}
               </Typography>
               <ColoredLine color="white" />
-              <Typography variant="body2" color="#97A9B4" style={{ marginTop: '10px' }}>
+              <Typography
+                variant="body2"
+                color="#97A9B4"
+                style={{ marginTop: '10px' }}
+              >
                 <i>{props.location}</i>
               </Typography>
             </CardContent>

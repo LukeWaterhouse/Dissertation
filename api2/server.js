@@ -4,6 +4,7 @@ import Post from './models/Post.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import jsonwebtoken from 'jsonwebtoken'
+import axios from 'axios'
 
 await mongoose.connect('mongodb://mongo:27017/auth', {
   useNewUrlParser: true,
@@ -28,13 +29,29 @@ app.use(
 //Adds new post to database
 app.post('/Posts', (req, res) => {
   console.log('making post reload?')
-  const { userName, date, content, location } = req.body
+  const { userName, date, content} = req.body
 
-  const post = new Post({ userName: userName, date: date, content: content, location: location })
-  post.save().then((postInfo) => {
-    console.log(postInfo)
-    res.send('made a post reload?')
-  })
+  axios.get(
+    'http://172.16.1.247:49153/ProfileInfo',
+    { params: { username: userName } },
+    { withCredentials: true }
+  ).then((response) => {
+    var location = response.data.location
+    
+    const post = new Post({
+      userName: userName,
+      date: date,
+      content: content,
+      location: location
+    })
+    post.save().then((postInfo) => {
+      console.log(postInfo)
+      res.send('made a post reload?')
+    })
+
+  }) 
+
+  
 })
 
 //returns all posts from database
@@ -55,7 +72,6 @@ app.delete('/Posts', (req, res) => {
   })
 })
 
-
 app.listen(49152, function () {
-    console.log('Server 2 running')
-  })
+  console.log('Server 2 running')
+})

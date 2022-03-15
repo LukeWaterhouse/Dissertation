@@ -1,32 +1,11 @@
 from locust import HttpUser, task
 
-class HelloWorldUser(HttpUser):
-    # @task()
-    # def hello_world(self):
-    #     self.client.get("/hello")
-    #     self.client.get("/world")
+#8090
+#Endpoints for server 1 (running on port 5000)
+# http://172.16.1.247:5000
 
+class HelloWorldUser(HttpUser):
+ 
     @task()
     def getPosts(self):
-        self.client.get("/Posts")
-
-    @task()
-    def putPost(self):
-        self.client.post("/Posts", json={"userName":"Locust", "date":"12/03/2022", "content":"locust test" })
-
-    # @task()
-    # def getPosts(self):
-    #     self.client.get("/Posts")
-
-    # @task()
-    # def getPosts(self):
-    #     self.client.get("/Posts")
-
-
-
-    
-
-# class SendForumPost(HttpUser):
-#     @task()
-#     def sendPost(self):
-
+        self.client.get("/")

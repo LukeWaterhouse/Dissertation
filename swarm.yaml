@@ -124,7 +124,7 @@ services:
     deploy:
       resources:
           limits:
-            cpus: '0.2'
+            cpus: '0.1'
             memory: 200M
 
   locust2:
@@ -133,11 +133,24 @@ services:
       - "8091:8089"
     volumes:
       - ./:/mnt/locust/
-    command: -f /mnt/locust/locustfile.py 
+    command: -f /mnt/locust/locustfile2.py 
     deploy:
       resources:
           limits:
-            cpus: '0.2'
+            cpus: '0.1'
+            memory: 200M
+
+  locust3:
+    image: locustio/locust
+    ports:
+      - "8092:8089"
+    volumes:
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile3.py 
+    deploy:
+      resources:
+          limits:
+            cpus: '0.1'
             memory: 200M
   
   # worker:
