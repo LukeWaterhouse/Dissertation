@@ -48,7 +48,7 @@ services:
     volumes:
       - ./api2:/usr/app
     depends_on:
-      - server
+      - mongo
     environment:
       - MONGO_URL=mongodb://db:27017
       - CLIENT=http://localhost:3000

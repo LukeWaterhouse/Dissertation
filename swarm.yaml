@@ -41,7 +41,7 @@ services:
       - CLIENT=http://localhost:3000
     command: /usr/app/node_modules/.bin/nodemon -L server.js
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         limits:
           cpus: '0.1'
@@ -57,7 +57,7 @@ services:
     volumes:
       - ./api2:/usr/app
     depends_on:
-      - server
+      - mongo
     environment:
       - MONGO_URL=mongodb://db:27017
       - CLIENT=http://localhost:3000
