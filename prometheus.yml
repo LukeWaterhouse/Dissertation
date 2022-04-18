@@ -2,5 +2,32 @@ scrape_configs:
 - job_name: cadvisor
   scrape_interval: 5s
   static_configs:
-  - targets:
-    - cadvisor:8080
+    - targets:
+      - cadvisor:8080 
+
+- job_name: server
+  scrape_interval: 5s
+  static_configs:
+  - targets: ['localhost:5000']
+   
+
+- job_name: serverb
+  scrape_interval: 5s
+  static_configs:
+  - targets: ['192.168.1.230:5000']
+
+
+
+# - job_name: serverb
+#   scrape_interval: 5s
+#   static_configs:
+#   - targets:
+#     - serverb:5000
+
+
+# - job_name: serverc
+#   scrape_interval: 5s
+#   static_configs:
+#   - targets:
+#     - servercc:5000
+  

@@ -28,7 +28,7 @@ app.use(express.json())
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000'
+    origin: 'http://localhost:8000'
   })
 )
 
@@ -57,7 +57,7 @@ app.post('/register', (req, res) => {
     if (userInfo == null) {
       //if no user yet hashes password and stores in database
       const hashedPassword = bcrypt.hashSync(password, 10)
-      const user = new User({ password: hashedPassword, userName, location: "", About: "", Tag1: "", Tag2: "", Tag3: "", Tag4: "" })
+      const user = new User({ password: hashedPassword, userName})
       user.save().then((userInfo) => {
         console.log(userInfo)
         //sign webtoken with user info to send to client

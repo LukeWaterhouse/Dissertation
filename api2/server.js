@@ -12,46 +12,61 @@ await mongoose.connect('mongodb://mongo:27017/auth', {
 })
 const db = mongoose.connection
 
+axios.defaults.timeout = 3000
+
 db.on('error', console.log)
 const app = express()
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-//handles cross policy origin
+//handles cross policy origins
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000'
+    origin: 'http://localhost:8000'
   })
 )
 
 //Adds new post to database
 app.post('/Posts', (req, res) => {
   console.log('making post reload?')
-  const { userName, date, content} = req.body
+  const { userName, date, content } = req.body
 
-  axios.get(
-    'http://172.16.1.247:49153/ProfileInfo',
-    { params: { username: userName } },
-    { withCredentials: true }
-  ).then((response) => {
-    var location = response.data.location
-    
-    const post = new Post({
-      userName: userName,
-      date: date,
-      content: content,
-      location: location
+  axios
+    .get(
+      'http://192.168.1.230:49153/ProfileInfo',
+      { params: { username: userName } },
+      { withCredentials: true }
+    )
+    .then((response) => {
+      var location = response.data.location
+
+      const post = new Post({
+        userName: userName,
+        date: date,
+        content: content,
+        location: location
+      })
+      post.save().then((postInfo) => {
+        console.log(postInfo)
+        res.send('made a post reload?')
+      })
+    }).catch(err => {
+      console.log(err)
+      const post = new Post({
+        userName: userName,
+        date: date,
+        content: content,
+        location: "Unknown"
+      })
+
+      post.save().then((postInfo) => {
+        console.log(postInfo)
+        res.send('made a post reload?')
+      })
+
     })
-    post.save().then((postInfo) => {
-      console.log(postInfo)
-      res.send('made a post reload?')
-    })
-
-  }) 
-
-  
 })
 
 //returns all posts from database
@@ -70,6 +85,10 @@ app.delete('/Posts', (req, res) => {
   Post.remove({}.callback).then((deleteInfo) => {
     res.send('deleted posts')
   })
+})
+
+app.get('/', (req, res) => {
+  res.send('server 2!')
 })
 
 app.listen(49152, function () {

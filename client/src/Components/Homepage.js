@@ -86,10 +86,9 @@ function HomePage() {
           marginLeft: '15%'
         }}
       >
-        GeckoSpot is an online community of people that love geckos! Now you have 
-        logged into our secure site you can take advantage of all the cool features!.
-        You can also hop on the forum and discuss your love of geckos with
-        the rest of the community
+        Now you have logged in to the site, you can edit your information here on the home 
+        page and come back to see it later. You can also head to the forum and talk to other
+        people on the site
       </div>
 
       <div

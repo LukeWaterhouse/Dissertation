@@ -17,9 +17,7 @@ services:
       - REACT_APP_SERVER=http://localhost:5000
       - CHOKIDAR_USEPOLLING=true
     command: npm start
-    # stdin_open: true
-    # tty: true
-
+ 
   server:
     build:
       context: ./api
@@ -87,32 +85,17 @@ services:
     ports: 
       - 49154:49154
 
-  master:
-    image: locustio/locust
-    ports:
-     - 8089:808 #first one is local machine, second is container 
-    volumes:
-      - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py
-  
-  # worker:
-  #   image: locustio/locust
-  #   volumes:
-  #     - ./:/mnt/locust
-  #   command: -f /mnt/locust/locustfile.py --worker --master-host master
-
   prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-    - 9090:9090
-    command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    depends_on:
-    - cadvisor
-
+      image: prom/prometheus:latest
+      container_name: prometheus
+      ports:
+      - 9090:9090
+      command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      depends_on:
+      - cadvisor
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -124,7 +107,68 @@ services:
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-    - server1
+    - redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - 6379:6379
+
+
+
+  locust:
+    image: locustio/locust
+    ports:
+     - "8090:8089"
+    volumes:
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile.py 
+    deploy:
+      resources:
+          limits:
+            cpus: '0.1'
+            memory: 200M
+
+  locust2:
+    image: locustio/locust
+    ports:
+      - "8091:8089"
+    volumes:
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile2.py 
+    deploy:
+      resources:
+          limits:
+            cpus: '0.1'
+            memory: 200M
+
+  locust3:
+    image: locustio/locust
+    ports:
+      - "8092:8089"
+    volumes:
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile3.py 
+    deploy:
+      resources:
+          limits:
+            cpus: '0.1'
+            memory: 200M
+  
+  locust4:
+    image: locustio/locust
+    ports:
+      - "8093:8089"
+    volumes:
+      - ./:/mnt/locust/
+    command: -f /mnt/locust/locustfile4.py 
+    deploy:
+      resources:
+          limits:
+            cpus: '0.1'
+            memory: 200M
+
+
 
 networks:
   mern-network:
